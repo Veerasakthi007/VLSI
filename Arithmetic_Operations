@@ -1,0 +1,49 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity Arithmetic_Operations is
+    Port ( A, B : in  STD_LOGIC_VECTOR (3 downto 0);
+           opcode : in  STD_LOGIC_VECTOR (3 downto 0);
+           Y : out  STD_LOGIC_VECTOR (7 downto 0);
+           carry : out STD_LOGIC;
+           borrow : out STD_LOGIC);
+end Arithmetic_Operations;
+
+architecture Behavioral of Arithmetic_Operations is
+begin
+    process(A, B, opcode)
+        variable temp_add : unsigned (4 downto 0);
+        variable temp_sub : unsigned (3 downto 0);
+        variable temp_div : unsigned (3 downto 0);
+        variable temp_mul : unsigned (7 downto 0);
+    begin
+        carry <= '0';
+        borrow <= '0';
+        case opcode is
+            when "0000" => -- Addition
+                temp_add := unsigned('0'& A) + unsigned('0'& B);
+                Y <= "000" & STD_LOGIC_VECTOR(temp_add(4 downto 0));
+                if temp_add(4) = '1' then
+                    carry <= '1';
+                end if;
+            when "0001" => -- Subtraction
+                if unsigned(A) < unsigned(B) then
+                    borrow <= '1';
+                end if;
+                temp_sub := unsigned(A) - unsigned(B);
+                Y <= "0000" & STD_LOGIC_VECTOR(temp_sub);
+            when "1100" => -- Multiplication
+                temp_mul := unsigned(A) * unsigned(B);
+                Y <= STD_LOGIC_VECTOR(temp_mul);
+            when "1101" => -- Division
+                if B /= "0000" then
+                    temp_div := unsigned(A) / unsigned(B);
+                    Y <= "0000" & STD_LOGIC_VECTOR(temp_div);
+                else
+                    Y <= (others => 'X'); -- Division by zero
+                end if;
+            when others => null;
+        end case;
+    end process;
+end Behavioral;
