@@ -1,0 +1,23 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity Logic_Operations is
+    Port ( A, B : in  STD_LOGIC_VECTOR (3 downto 0);
+           opcode : in  STD_LOGIC_VECTOR (3 downto 0);
+           Y : out  STD_LOGIC_VECTOR (7 downto 0));
+end Logic_Operations;
+
+architecture Behavioral of Logic_Operations is
+begin
+    process(A, B, opcode)
+    begin
+        case opcode is
+            when "0010" => Y <= "0000"&(A and B);    -- AND
+            when "0011" => Y <= "0000"&(A or B);     -- OR
+            when "0111" => Y <="0000"& (A nand B);  -- NAND
+            when "1000" => Y <="0000"& (A nor B);   -- NOR
+            when "1001" => Y <= "0000"&(A xnor B);  -- XNOR
+            when others => Y <= (others => '0');
+        end case;
+    end process;
+end Behavioral;
