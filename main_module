@@ -1,0 +1,42 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity ALU_4BIT_Structural is
+    Port ( A : in  STD_LOGIC_VECTOR (3 downto 0);
+           B : in  STD_LOGIC_VECTOR (3 downto 0);
+           opcode : in  STD_LOGIC_VECTOR (3 downto 0);
+           Y : out  STD_LOGIC_VECTOR (7 downto 0);
+           carry : out STD_LOGIC;
+           borrow : out STD_LOGIC);
+end ALU_4BIT_Structural;
+
+architecture Behavioral of ALU_4BIT_Structural is
+    signal logic_result, arithmetic_result, shift_result : std_logic_vector(7 downto 0);
+    signal arithmetic_carry, arithmetic_borrow : std_logic;
+begin
+    Logic_Operation_Inst: entity work.Logic_Operations
+        port map (A => A, B => B, opcode => opcode, Y => logic_result);
+    Arithmetic_Operation_Inst: entity work.Arithmetic_Operations
+        port map (A => A, B => B, opcode => opcode, Y => arithmetic_result,
+                  carry => arithmetic_carry, borrow => arithmetic_borrow);
+    Shifting_Operation_Inst: entity work.Shifting_Operations
+        port map (A => A, opcode => opcode, Y => shift_result);
+
+    process(opcode, arithmetic_result, arithmetic_carry, arithmetic_borrow, shift_result)
+    begin
+        case opcode is
+            when "0000" | "0001" | "1100" | "1101" =>
+                Y <= arithmetic_result;
+                carry <= arithmetic_carry;
+                borrow <= arithmetic_borrow;
+            when "0100" | "0101" | "1010" | "1011" =>
+                Y <= shift_result;
+                carry <= '0';  -- Shifting operations don't affect carry or borrow
+                borrow <= '0';
+            when others =>
+                Y <= logic_result;
+                carry <= '0';  -- Logic operations don't affect carry or borrow
+                borrow <= '0';
+        end case;
+    end process;
+end Behavioral;
