@@ -1,0 +1,33 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity Shifting_Operations is
+    Port ( A : in  STD_LOGIC_VECTOR (3 downto 0);
+           opcode : in  STD_LOGIC_VECTOR (3 downto 0);
+           Y : out  STD_LOGIC_VECTOR (7 downto 0));
+end Shifting_Operations;
+
+architecture Behavioral of Shifting_Operations is
+begin
+    process(A, opcode)
+        variable temp_shift_left : unsigned (3 downto 0);
+        variable temp_shift_right : unsigned (3 downto 0);
+    begin
+        case opcode is
+            when "0100" => -- Left Shift
+                temp_shift_left := shift_left(unsigned(A), 2);
+                Y <= "0000" & STD_LOGIC_VECTOR(temp_shift_left(3 downto 0));
+            when "0101" => -- Right Shift
+                temp_shift_right := shift_right(unsigned(A), 1);
+                Y <= "0000" & STD_LOGIC_VECTOR(temp_shift_right(3 downto 0));
+            when "1010" => -- Rotate Left
+                temp_shift_left := rotate_left(unsigned(A), 2);
+                Y <= "0000"&STD_LOGIC_VECTOR(temp_shift_left(3 downto 0));
+            when "1011" => -- Rotate Right
+                temp_shift_right := rotate_right(unsigned(A), 2);
+                Y <= "0000"& STD_LOGIC_VECTOR(temp_shift_right(3 downto 0));
+            when others => Y <= (others => '0');
+        end case;
+    end process;
+end Behavioral;
